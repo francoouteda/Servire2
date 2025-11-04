@@ -10,6 +10,7 @@ namespace Servire.Bll.DTOs
 
         public string Nivel { get; set; }  // <-- Propiedad agregada
         public string Usuario { get; set; }
+        dsfsd 
         public string Fuente { get; set; }
         public string Mensaje { get; set; }
         public string Stacktrace { get; set; }
