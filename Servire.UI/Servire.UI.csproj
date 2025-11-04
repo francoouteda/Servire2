@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<UseWindowsForms>true</UseWindowsForms>
+		<EnableWindowsTargeting>true</EnableWindowsTargeting>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Serivire.Dal\Serivire.Dal.csproj" />
+		<ProjectReference Include="..\Servire.Bll\Servire.Bll.csproj" />
+		<ProjectReference Include="..\Servire.Domain\Servire.Domain.csproj" />
+		<ProjectReference Include="..\Servire.Services\Servire.Services.csproj" />
+	</ItemGroup>
+
+	
+	<ItemGroup>
+		<EmbeddedResource Update="Forms\frmLogin.resx">
+			<DependentUpon>frmLogin.cs</DependentUpon>
+		</EmbeddedResource>
+
+		
+		<Compile Update="App.Designer.cs">
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>App.config</DependentUpon>
+		</Compile>
+		<None Update="App.config">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>App.Designer.cs</LastGenOutput>
+		</None>
+		<None Update="appsettings.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+</Project>
