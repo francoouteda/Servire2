@@ -1,17 +1,19 @@
-﻿// Servire.Bll/Interfaces/IUnitOfWork.cs
-namespace Servire.Bll.Interfaces
+﻿namespace Servire.Bll.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
-        // Propiedades para acceder a cada repositorio
+       
         IUsuarioRepository UsuarioRepository { get; }
         IBitacoraRepository BitacoraRepository { get; }
-        // IProductoRepository ProductoRepository { get; }
+        IProveedorRepository ProveedorRepository { get; }
+        IInsumoRepository InsumoRepository { get; }
+        IMovimientoStockRepository MovimientoStockRepository { get; }
+        IProductoRepository ProductoRepository { get; }
+        IIngredienteRepository IngredienteRepository { get; }
 
-        // Método para confirmar la transacción
-
-        IErrorLogRepository ErrorLogRepository { get; }
+        void BeginTransaction();
         void Commit();
         void Rollback();
+     
     }
 }

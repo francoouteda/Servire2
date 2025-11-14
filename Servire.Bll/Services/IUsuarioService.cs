@@ -11,5 +11,5 @@ public interface IUsuarioService
     void Actualizar(Usuario u);
     void CambiarPassword(int userId, string nuevoPassword);
     void ToggleActivo(int userId, bool activo);
-    void Validar(Usuario u); 
+    void GuardarIdiomaPreferido(int usuarioId, string codigoCultura);
 }

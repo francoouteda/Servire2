@@ -34,6 +34,13 @@
             lblRolFiltro = new Label();
             cboRolFiltro = new ComboBox();
             lblTotal = new Label();
+            pnlBotones = new FlowLayoutPanel();
+            btnEditar = new Button();
+            btnNuevo = new Button();
+            btnResetPassword = new Button();
+            btnDesactivar = new Button();
+            btnActivar = new Button();
+            btnCerrar = new Button();
             dgvUsuarios = new DataGridView();
             ColId = new DataGridViewTextBoxColumn();
             ColUserName = new DataGridViewTextBoxColumn();
@@ -42,16 +49,9 @@
             ColActivo = new DataGridViewTextBoxColumn();
             ColDNI = new DataGridViewTextBoxColumn();
             ColUltimoAcceso = new DataGridViewTextBoxColumn();
-            pnlBotones = new FlowLayoutPanel();
-            btnNuevo = new Button();
-            btnEditar = new Button();
-            btnActivar = new Button();
-            btnDesactivar = new Button();
-            btnResetPassword = new Button();
-            btnCerrar = new Button();
             pnlFiltros.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)dgvUsuarios).BeginInit();
             pnlBotones.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvUsuarios).BeginInit();
             SuspendLayout();
             // 
             // pnlFiltros
@@ -115,6 +115,82 @@
             lblTotal.TabIndex = 4;
             lblTotal.Text = "Total: 0";
             // 
+            // pnlBotones
+            // 
+            pnlBotones.Controls.Add(btnEditar);
+            pnlBotones.Controls.Add(btnNuevo);
+            pnlBotones.Controls.Add(btnResetPassword);
+            pnlBotones.Controls.Add(btnDesactivar);
+            pnlBotones.Controls.Add(btnActivar);
+            pnlBotones.Controls.Add(btnCerrar);
+            pnlBotones.Location = new Point(541, 11);
+            pnlBotones.Name = "pnlBotones";
+            pnlBotones.Padding = new Padding(8);
+            pnlBotones.Size = new Size(490, 87);
+            pnlBotones.TabIndex = 5;
+            // 
+            // btnEditar
+            // 
+            btnEditar.Location = new Point(11, 11);
+            btnEditar.Name = "btnEditar";
+            btnEditar.Size = new Size(94, 29);
+            btnEditar.TabIndex = 1;
+            btnEditar.Text = "Editar";
+            btnEditar.UseVisualStyleBackColor = true;
+            btnEditar.Click += btnEditar_Click;
+            // 
+            // btnNuevo
+            // 
+            btnNuevo.Location = new Point(111, 11);
+            btnNuevo.Name = "btnNuevo";
+            btnNuevo.Size = new Size(94, 29);
+            btnNuevo.TabIndex = 0;
+            btnNuevo.Text = "Nuevo";
+            btnNuevo.UseVisualStyleBackColor = true;
+            btnNuevo.Click += btnNuevo_Click;
+            // 
+            // btnResetPassword
+            // 
+            btnResetPassword.Location = new Point(211, 11);
+            btnResetPassword.Name = "btnResetPassword";
+            btnResetPassword.Size = new Size(162, 29);
+            btnResetPassword.TabIndex = 4;
+            btnResetPassword.Text = "Reiniciar contraseña";
+            btnResetPassword.UseVisualStyleBackColor = true;
+            btnResetPassword.Click += btnResetPassword_Click;
+            // 
+            // btnDesactivar
+            // 
+            btnDesactivar.Location = new Point(379, 11);
+            btnDesactivar.Name = "btnDesactivar";
+            btnDesactivar.Size = new Size(94, 29);
+            btnDesactivar.TabIndex = 3;
+            btnDesactivar.Text = "Desactivar";
+            btnDesactivar.UseVisualStyleBackColor = true;
+            btnDesactivar.Click += btnDesactivar_Click;
+            // 
+            // btnActivar
+            // 
+            btnActivar.Location = new Point(11, 46);
+            btnActivar.Name = "btnActivar";
+            btnActivar.Size = new Size(94, 29);
+            btnActivar.TabIndex = 2;
+            btnActivar.Text = "Activar";
+            btnActivar.UseVisualStyleBackColor = true;
+            btnActivar.Click += btnActivar_Click;
+            // 
+            // btnCerrar
+            // 
+            btnCerrar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnCerrar.Location = new Point(111, 46);
+            btnCerrar.Name = "btnCerrar";
+            btnCerrar.Size = new Size(94, 29);
+            btnCerrar.TabIndex = 5;
+            btnCerrar.Text = "Cerrar";
+            btnCerrar.TextAlign = ContentAlignment.TopCenter;
+            btnCerrar.UseVisualStyleBackColor = true;
+            btnCerrar.Click += btnCerrar_Click;
+            // 
             // dgvUsuarios
             // 
             dgvUsuarios.AllowUserToAddRows = false;
@@ -142,6 +218,7 @@
             // 
             // ColUserName
             // 
+            ColUserName.DataPropertyName = "Username";
             ColUserName.HeaderText = "Usuario";
             ColUserName.MinimumWidth = 6;
             ColUserName.Name = "ColUserName";
@@ -192,82 +269,6 @@
             ColUltimoAcceso.Name = "ColUltimoAcceso";
             ColUltimoAcceso.ReadOnly = true;
             // 
-            // pnlBotones
-            // 
-            pnlBotones.Controls.Add(btnEditar);
-            pnlBotones.Controls.Add(btnNuevo);
-            pnlBotones.Controls.Add(btnCerrar);
-            pnlBotones.Controls.Add(btnResetPassword);
-            pnlBotones.Controls.Add(btnDesactivar);
-            pnlBotones.Controls.Add(btnActivar);
-            pnlBotones.Location = new Point(541, 11);
-            pnlBotones.Name = "pnlBotones";
-            pnlBotones.Padding = new Padding(8);
-            pnlBotones.Size = new Size(451, 87);
-            pnlBotones.TabIndex = 5;
-            // 
-            // btnNuevo
-            // 
-            btnNuevo.Location = new Point(111, 11);
-            btnNuevo.Name = "btnNuevo";
-            btnNuevo.Size = new Size(94, 29);
-            btnNuevo.TabIndex = 0;
-            btnNuevo.Text = "Nuevo";
-            btnNuevo.UseVisualStyleBackColor = true;
-            btnNuevo.Click += btnNuevo_Click;
-            // 
-            // btnEditar
-            // 
-            btnEditar.Location = new Point(11, 11);
-            btnEditar.Name = "btnEditar";
-            btnEditar.Size = new Size(94, 29);
-            btnEditar.TabIndex = 1;
-            btnEditar.Text = "Editar";
-            btnEditar.UseVisualStyleBackColor = true;
-            btnEditar.Click += btnEditar_Click;
-            // 
-            // btnActivar
-            // 
-            btnActivar.Location = new Point(279, 46);
-            btnActivar.Name = "btnActivar";
-            btnActivar.Size = new Size(94, 29);
-            btnActivar.TabIndex = 2;
-            btnActivar.Text = "Activar";
-            btnActivar.UseVisualStyleBackColor = true;
-            btnActivar.Click += btnActivar_Click;
-            // 
-            // btnDesactivar
-            // 
-            btnDesactivar.Location = new Point(179, 46);
-            btnDesactivar.Name = "btnDesactivar";
-            btnDesactivar.Size = new Size(94, 29);
-            btnDesactivar.TabIndex = 3;
-            btnDesactivar.Text = "Desactivar";
-            btnDesactivar.UseVisualStyleBackColor = true;
-            btnDesactivar.Click += btnDesactivar_Click;
-            // 
-            // btnResetPassword
-            // 
-            btnResetPassword.Location = new Point(11, 46);
-            btnResetPassword.Name = "btnResetPassword";
-            btnResetPassword.Size = new Size(162, 29);
-            btnResetPassword.TabIndex = 4;
-            btnResetPassword.Text = "Reiniciar contraseña";
-            btnResetPassword.UseVisualStyleBackColor = true;
-            btnResetPassword.Click += btnResetPassword_Click;
-            // 
-            // btnCerrar
-            // 
-            btnCerrar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnCerrar.Location = new Point(211, 11);
-            btnCerrar.Name = "btnCerrar";
-            btnCerrar.Size = new Size(94, 29);
-            btnCerrar.TabIndex = 5;
-            btnCerrar.Text = "Cerrar";
-            btnCerrar.TextAlign = ContentAlignment.BottomRight;
-            btnCerrar.UseVisualStyleBackColor = true;
-            btnCerrar.Click += btnCerrar_Click;
-            // 
             // frmUsuarios
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -281,8 +282,8 @@
             Load += frmUsuarios_Load;
             pnlFiltros.ResumeLayout(false);
             pnlFiltros.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)dgvUsuarios).EndInit();
             pnlBotones.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgvUsuarios).EndInit();
             ResumeLayout(false);
         }
 
@@ -295,13 +296,6 @@
         private ComboBox cboRolFiltro;
         private Label lblTotal;
         private DataGridView dgvUsuarios;
-        private DataGridViewTextBoxColumn ColId;
-        private DataGridViewTextBoxColumn ColUserName;
-        private DataGridViewTextBoxColumn ColNombre;
-        private DataGridViewTextBoxColumn ColRol;
-        private DataGridViewTextBoxColumn ColActivo;
-        private DataGridViewTextBoxColumn ColDNI;
-        private DataGridViewTextBoxColumn ColUltimoAcceso;
         private FlowLayoutPanel pnlBotones;
         private Button btnEditar;
         private Button btnNuevo;
@@ -309,5 +303,12 @@
         private Button btnActivar;
         private Button btnCerrar;
         private Button btnResetPassword;
+        private DataGridViewTextBoxColumn ColId;
+        private DataGridViewTextBoxColumn ColUserName;
+        private DataGridViewTextBoxColumn ColNombre;
+        private DataGridViewTextBoxColumn ColRol;
+        private DataGridViewTextBoxColumn ColActivo;
+        private DataGridViewTextBoxColumn ColDNI;
+        private DataGridViewTextBoxColumn ColUltimoAcceso;
     }
 }

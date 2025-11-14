@@ -33,11 +33,14 @@
             menuSalir = new ToolStripMenuItem();
             menuAdmin = new ToolStripMenuItem();
             menuUsuarios = new ToolStripMenuItem();
+            menuUsuariosToolStripMenuItem = new ToolStripMenuItem();
             menuBitacora = new ToolStripMenuItem();
+            MenuStock = new ToolStripMenuItem();
+            menuProductos = new ToolStripMenuItem();
             sqlCommand1 = new Microsoft.Data.SqlClient.SqlCommand();
             statusStrip1 = new StatusStrip();
             lblSesion = new ToolStripStatusLabel();
-            menuUsuariosToolStripMenuItem = new ToolStripMenuItem();
+            pnlContenedorPrincipal = new Panel();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
             SuspendLayout();
@@ -45,7 +48,7 @@
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { menuArchivo, menuAdmin });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { menuArchivo, menuAdmin, menuUsuarios, menuBitacora, MenuStock, menuProductos });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(938, 28);
@@ -68,7 +71,6 @@
             // 
             // menuAdmin
             // 
-            menuAdmin.DropDownItems.AddRange(new ToolStripItem[] { menuUsuarios, menuBitacora });
             menuAdmin.Name = "menuAdmin";
             menuAdmin.Size = new Size(123, 24);
             menuAdmin.Text = "Administración";
@@ -77,16 +79,37 @@
             // 
             menuUsuarios.DropDownItems.AddRange(new ToolStripItem[] { menuUsuariosToolStripMenuItem });
             menuUsuarios.Name = "menuUsuarios";
-            menuUsuarios.Size = new Size(224, 26);
+            menuUsuarios.Size = new Size(79, 24);
             menuUsuarios.Text = "Usuarios";
             menuUsuarios.Click += menuUsuarios_Click;
+            // 
+            // menuUsuariosToolStripMenuItem
+            // 
+            menuUsuariosToolStripMenuItem.Name = "menuUsuariosToolStripMenuItem";
+            menuUsuariosToolStripMenuItem.Size = new Size(224, 26);
+            menuUsuariosToolStripMenuItem.Text = "Menu Usuarios";
+            menuUsuariosToolStripMenuItem.Click += menuUsuarios_Click;
             // 
             // menuBitacora
             // 
             menuBitacora.Name = "menuBitacora";
-            menuBitacora.Size = new Size(224, 26);
+            menuBitacora.Size = new Size(130, 24);
             menuBitacora.Text = "Bitácora/Errores";
             menuBitacora.Click += menuBitacora_Click;
+            // 
+            // MenuStock
+            // 
+            MenuStock.Name = "MenuStock";
+            MenuStock.Size = new Size(59, 24);
+            MenuStock.Text = "Stock";
+            MenuStock.Click += menuStock_Click;
+            // 
+            // menuProductos
+            // 
+            menuProductos.Name = "menuProductos";
+            menuProductos.Size = new Size(89, 24);
+            menuProductos.Text = "Productos";
+            menuProductos.Click += menuProductos_Click;
             // 
             // sqlCommand1
             // 
@@ -109,18 +132,20 @@
             lblSesion.Size = new Size(52, 20);
             lblSesion.Text = "Sesión";
             // 
-            // menuUsuariosToolStripMenuItem
+            // pnlContenedorPrincipal
             // 
-            menuUsuariosToolStripMenuItem.Name = "menuUsuariosToolStripMenuItem";
-            menuUsuariosToolStripMenuItem.Size = new Size(224, 26);
-            menuUsuariosToolStripMenuItem.Text = "Menu Usuarios";
-            menuUsuariosToolStripMenuItem.Click += menuUsuariosToolStripMenuItem_Click;
+            pnlContenedorPrincipal.Dock = DockStyle.Fill;
+            pnlContenedorPrincipal.Location = new Point(0, 28);
+            pnlContenedorPrincipal.Name = "pnlContenedorPrincipal";
+            pnlContenedorPrincipal.Size = new Size(938, 396);
+            pnlContenedorPrincipal.TabIndex = 2;
             // 
             // frmHome
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(938, 450);
+            Controls.Add(pnlContenedorPrincipal);
             Controls.Add(statusStrip1);
             Controls.Add(menuStrip1);
             MainMenuStrip = menuStrip1;
@@ -143,10 +168,13 @@
         private ToolStripMenuItem menuArchivo;
         private ToolStripMenuItem menuSalir;
         private ToolStripMenuItem menuAdmin;
-        private ToolStripMenuItem menuUsuarios;
-        private ToolStripMenuItem menuBitacora;
         private StatusStrip statusStrip1;
         private ToolStripStatusLabel lblSesion;
+        private ToolStripMenuItem menuUsuarios;
         private ToolStripMenuItem menuUsuariosToolStripMenuItem;
+        private ToolStripMenuItem menuBitacora;
+        private ToolStripMenuItem MenuStock;
+        private Panel pnlContenedorPrincipal;
+        private ToolStripMenuItem menuProductos;
     }
 }

@@ -1,9 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
-using Servire.Bll.DTOs;
+
 using Servire.Bll.Interfaces;
 using System.Data.SqlTypes;
-namespace Servire.Dal.Ado
 
+namespace Servire.Dal.Ado
 {
     public class UnitOfWorkAdo : IUnitOfWork
     {
@@ -11,29 +11,59 @@ namespace Servire.Dal.Ado
         private SqlTransaction _transaction;
         private bool _disposed;
 
-        // Repositorios (se inicializan "lazy" para usar la misma transacción)
         private IBitacoraRepository _bitacoraRepository;
-        private IUsuarioRepository _usuarioRepository; // (Se agregará después)
-        private IErrorLogRepository _errorLogRepository;
-
+        private IProveedorRepository _proveedorRepository;
+        private IInsumoRepository _insumoRepository;
+        private IMovimientoStockRepository _movimientoStockRepository;
+        private IProductoRepository _productoRepository;
+        private IIngredienteRepository _ingredienteRepository;
 
         public UnitOfWorkAdo(string connectionString)
         {
             _connection = new SqlConnection(connectionString);
             _connection.Open();
-            _transaction = _connection.BeginTransaction();
         }
 
-        // Propiedad de la interfaz (implementación "lazy loading")
         public IBitacoraRepository BitacoraRepository =>
-            _bitacoraRepository ??= new BitacoraRepositoryAdo(_transaction);
+            _bitacoraRepository ??= new BitacoraRepositoryAdo(_connection, _transaction);
 
-        public IUsuarioRepository UsuarioRepository => 
-            _usuarioRepository ??= new UsuarioRepositoryAdo(_transaction);
+        public IUsuarioRepository UsuarioRepository
+        {
+            get
+            {
+                _usuarioRepository ??= new UsuarioRepositoryAdo(_connection, _transaction);
+                return _usuarioRepository;
+            }
+        }
+        public void BeginTransaction()
+        {
+            if (_transaction != null)
+            {
+                throw new InvalidOperationException("Transaction already started.");
+            }
+            _transaction = _connection.BeginTransaction();
+        }
+        public IProveedorRepository ProveedorRepository =>
+            _proveedorRepository ??= new ProveedorRepositoryAdo(_connection, _transaction);
 
-        public IErrorLogRepository ErrorLogRepository => _errorLogRepository ??= new ErrorLogRepositoryAdo(_transaction);
+        public IInsumoRepository InsumoRepository =>
+            _insumoRepository ??= new InsumoRepositoryAdo(_connection, _transaction);
+
+        public IMovimientoStockRepository MovimientoStockRepository =>
+            _movimientoStockRepository ??= new MovimientoStockRepositoryAdo(_connection, _transaction);
+
+    
+
+        public IProductoRepository ProductoRepository =>
+            _productoRepository ??= new ProductoRepositoryAdo(_connection, _transaction);
+
+        public IIngredienteRepository IngredienteRepository =>
+            _ingredienteRepository ??= new IngredienteRepositoryAdo(_connection, _transaction);
+
         public void Commit()
         {
+            if (_transaction == null) return;
+
             try
             {
                 _transaction.Commit();
@@ -41,32 +71,34 @@ namespace Servire.Dal.Ado
             catch
             {
                 _transaction.Rollback();
-                throw; // Relanza la excepción
+                throw;
             }
             finally
             {
-                // Inicia una nueva transacción para el próximo trabajo
                 ReiniciarTransaccion();
-
-                _errorLogRepository = null;
             }
         }
 
         public void Rollback()
         {
-            _transaction.Rollback();
+            _transaction?.Rollback();
             ReiniciarTransaccion();
         }
 
         private void ReiniciarTransaccion()
         {
-            _transaction.Dispose();
-            _transaction = _connection.BeginTransaction();
-            // Resetea los repositorios para que usen la nueva transacción
-            _bitacoraRepository = null;
-             _usuarioRepository = null;
-        }
+            _transaction?.Dispose();
+            _transaction = null;
 
+            _bitacoraRepository = null;
+            _usuarioRepository = null;
+          
+            _proveedorRepository = null;
+            _insumoRepository = null;
+            _movimientoStockRepository = null;
+            _productoRepository = null;
+            _ingredienteRepository = null;
+        }
         public void Dispose()
         {
             if (_disposed) return;

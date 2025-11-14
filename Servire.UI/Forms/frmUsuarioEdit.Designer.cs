@@ -75,13 +75,13 @@
             lblUsuario.AutoSize = true;
             lblUsuario.Location = new Point(15, 12);
             lblUsuario.Name = "lblUsuario";
-            lblUsuario.Size = new Size(59, 20);
+            lblUsuario.Size = new Size(62, 20);
             lblUsuario.TabIndex = 0;
-            lblUsuario.Text = "Usuario";
+            lblUsuario.Text = "Usuario:";
             // 
             // txtUserName
             // 
-            txtUserName.Location = new Point(80, 15);
+            txtUserName.Location = new Point(83, 15);
             txtUserName.Name = "txtUserName";
             txtUserName.Size = new Size(260, 27);
             txtUserName.TabIndex = 1;
@@ -89,15 +89,15 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(346, 12);
+            label1.Location = new Point(349, 12);
             label1.Name = "label1";
-            label1.Size = new Size(64, 20);
+            label1.Size = new Size(67, 20);
             label1.TabIndex = 2;
-            label1.Text = "Nombre";
+            label1.Text = "Nombre:";
             // 
             // txtNombre
             // 
-            txtNombre.Location = new Point(416, 15);
+            txtNombre.Location = new Point(422, 15);
             txtNombre.Name = "txtNombre";
             txtNombre.Size = new Size(260, 27);
             txtNombre.TabIndex = 3;
@@ -105,15 +105,15 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(682, 12);
+            label3.Location = new Point(688, 12);
             label3.Name = "label3";
-            label3.Size = new Size(35, 20);
+            label3.Size = new Size(38, 20);
             label3.TabIndex = 4;
-            label3.Text = "DNI";
+            label3.Text = "DNI:";
             // 
             // txtdni
             // 
-            txtdni.Location = new Point(723, 15);
+            txtdni.Location = new Point(732, 15);
             txtdni.MaxLength = 10;
             txtdni.Name = "txtdni";
             txtdni.Size = new Size(150, 27);
@@ -122,7 +122,7 @@
             // chkActivo
             // 
             chkActivo.AutoSize = true;
-            chkActivo.Location = new Point(879, 15);
+            chkActivo.Location = new Point(888, 15);
             chkActivo.Name = "chkActivo";
             chkActivo.Size = new Size(73, 24);
             chkActivo.TabIndex = 8;
@@ -132,7 +132,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(958, 12);
+            label2.Location = new Point(967, 12);
             label2.Name = "label2";
             label2.Size = new Size(31, 20);
             label2.TabIndex = 6;
@@ -142,7 +142,7 @@
             // 
             cboRol.DropDownStyle = ComboBoxStyle.DropDownList;
             cboRol.FormattingEnabled = true;
-            cboRol.Location = new Point(995, 15);
+            cboRol.Location = new Point(1004, 15);
             cboRol.Name = "cboRol";
             cboRol.Size = new Size(180, 28);
             cboRol.TabIndex = 7;
@@ -163,7 +163,7 @@
             // 
             // txtConfirm
             // 
-            txtConfirm.Location = new Point(104, 103);
+            txtConfirm.Location = new Point(115, 103);
             txtConfirm.Name = "txtConfirm";
             txtConfirm.Size = new Size(230, 27);
             txtConfirm.TabIndex = 4;
@@ -172,7 +172,7 @@
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(33, 103);
+            label6.Location = new Point(23, 106);
             label6.Name = "label6";
             label6.Size = new Size(75, 20);
             label6.TabIndex = 3;
@@ -197,7 +197,7 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(33, 50);
+            label4.Location = new Point(23, 50);
             label4.Name = "label4";
             label4.Size = new Size(86, 20);
             label4.TabIndex = 1;

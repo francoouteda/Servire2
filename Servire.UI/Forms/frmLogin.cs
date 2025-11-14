@@ -1,9 +1,6 @@
-﻿using System;
-using System.Windows.Forms;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Servire.Bll;
 using Servire.Bll.Interfaces;
-using Servire.UI;
 
 namespace Servire.UI.Forms
 {
@@ -21,10 +18,7 @@ namespace Servire.UI.Forms
 
         private void btnIngresar_Click(object? sender, EventArgs e)
         {
-            try
-            {
-                // --- CAMBIO: Agregado .ToLower() ---
-                // Esto asegura que "Admin" o "ADMIN" funcionen igual que "admin"
+            try { 
                 var u = _usuarios.Login(txtUsuario.Text.Trim().ToLower(), txtPassword.Text);
 
                 Program.CurrentUser = u;
@@ -36,19 +30,18 @@ namespace Servire.UI.Forms
             catch (Exception ex)
             {
                 _log.Error(nameof(frmLogin), ex);
-                MessageBox.Show(ex.Message, "Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "Login", MessageBoxButtons.OK, MessageBoxIcon.Error);   
             }
         }
 
         private void frmLogin_Load(object sender, EventArgs e)
         {
-
-
         }
 
         private void txtUsuario_TextChanged(object sender, EventArgs e)
         {
 
         }
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Servire.Bll.Interfaces;
 using Servire.Domain.Entities;
+using Servire.Domain.Entities.Seguridad;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,69 +13,60 @@ namespace Servire.Bll.Services
         private readonly IPasswordHasher _hasher;
         private readonly IBitacoraService _bitacora;
         private readonly ISessionContext _session;
-        private readonly IErrorLogger _log;
 
+        // Se eliminó IErrorLogger del constructor
         public UsuarioService(
             IUnitOfWork uow,
             IPasswordHasher hasher,
             IBitacoraService bitacora,
-            ISessionContext session,
-            IErrorLogger log)
+            ISessionContext session)
         {
             _uow = uow;
             _hasher = hasher;
             _bitacora = bitacora;
             _session = session;
-            _log = log;
         }
 
         public Usuario Login(string username, string password)
         {
+            // Sin try/catch gigante solo para loguear. 
+            // Solo nos protegemos para transacciones o dejamos que fluya.
+            // Al ser lectura, incluso podríamos prescindir de la transacción si no auditamos login.
+            // Pero como auditamos (Bitacora) y actualizamos fecha, la necesitamos.
+
+            _uow.BeginTransaction();
             try
             {
-                // --- INICIO DE DIAGNÓSTICO ---
                 var u = _uow.UsuarioRepository.ObtenerPorUsername(username);
 
-                if (u == null)
+                // Validaciones de negocio
+                if (u == null || !u.Activo || !_hasher.Verify(password, u.PasswordHash))
                 {
-                    // Si el usuario es nulo, lo logueamos y fallamos.
-                    _log.Error(nameof(UsuarioService) + ".Login-DIAGNOSTICO", new  Exception($"Usuario '{username}' NO encontrado en la base de datos."), username);
+                    // Bitacora de intento fallido
+                    _bitacora.Registrar(username, "Login", "Acceso fallido (Credenciales inválidas)");
+                    _uow.Commit(); // Guardamos el intento fallido en bitácora
                     throw new Exception("Credenciales inválidas.");
                 }
 
-                // Si llegamos aquí, el usuario SÍ existe.
-                // Logueamos los datos que encontramos.
-                _log.Info(nameof(UsuarioService) + ".Login-DIAGNOSTICO", $"Usuario '{username}' ENCONTRADO. Activo: {u.Activo}, Hash en BD: {u.PasswordHash}", username);
-
-                // --- FIN DE DIAGNÓSTICO ---
-
-                // La lógica de negocio pura
-                if (!u.Activo) throw new Exception("Credenciales inválidas."); // Falla si no está activo
-                if (!_hasher.Verify(password, u.PasswordHash)) throw new Exception("Credenciales inválidas."); // Falla si el hash no coincide
-
-                // Si llegamos aquí, el login fue exitoso
+                // Éxito
                 u.UltimoAcceso = DateTime.Now;
                 _uow.UsuarioRepository.Actualizar(u);
                 _bitacora.Registrar(u.Username, "Login", "Acceso correcto");
+
+                // TODO: Refactorizar CargarPermisos (ver punto siguiente)
+                CargarPermisos(u);
+
                 _uow.Commit();
                 return u;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // Logueamos la excepción REAL (sea la nuestra o una de SQL)
-                _log.Error(nameof(UsuarioService) + ".Login-CATCH", ex, username);
-
-                _bitacora.Registrar(username, "Login", "Acceso fallido");
-
-                try { _uow.Commit(); } catch { /* Ignorar error de commit de bitácora */ }
-
-                throw new Exception("Credenciales inválidas.");
+                // Solo hacemos Rollback si algo falló a nivel de BD inesperadamente
+                try { _uow.Rollback(); } catch { }
+                throw; // Re-lanzamos la excepción para que la capa Services/UI la loguee
             }
         }
 
-        // ... (El resto de tu clase UsuarioService.cs no necesita cambios)
-        // ... (Crear, Actualizar, Listar, etc.)
-        #region Otros Metodos
         public IEnumerable<Usuario> Listar()
         {
             return _uow.UsuarioRepository.Listar();
@@ -87,80 +79,142 @@ namespace Servire.Bll.Services
 
         public void Crear(Usuario u, string passwordPlano)
         {
-            Validar(u);
-            if (string.IsNullOrWhiteSpace(passwordPlano) || passwordPlano.Length < 8)
-                throw new Exception("La contraseña es requerida y debe tener al menos 8 caracteres.");
+            _uow.BeginTransaction();
+            try
+            {
+                Validar(u);
+                if (string.IsNullOrWhiteSpace(passwordPlano) || passwordPlano.Length < 8)
+                    throw new Exception("La contraseña es requerida y debe tener al menos 8 caracteres.");
 
-            if (_uow.UsuarioRepository.ExisteUsername(u.Username))
-                throw new Exception("El nombre de usuario ya existe.");
+                if (_uow.UsuarioRepository.ExisteUsername(u.Username))
+                    throw new Exception("El nombre de usuario ya existe.");
 
-            if (_uow.UsuarioRepository.ExisteDni(u.Dni))
-                throw new Exception("El DNI ya existe.");
+                if (_uow.UsuarioRepository.ExisteDni(u.Dni))
+                    throw new Exception("El DNI ya existe.");
 
-            u.PasswordHash = _hasher.Hash(passwordPlano);
-            if (u.UltimoAcceso == default) u.UltimoAcceso = DateTime.Now;
+                u.PasswordHash = _hasher.Hash(passwordPlano);
+                if (u.UltimoAcceso == default) u.UltimoAcceso = DateTime.Now;
 
-            _uow.UsuarioRepository.Crear(u);
-            _bitacora.Registrar(UsuarioActual(), "Alta Usuario", $"Usuario: {u.Username}");
+                _uow.UsuarioRepository.Crear(u);
+                _bitacora.Registrar(UsuarioActual(), "Alta Usuario", $"Usuario: {u.Username}");
 
-            _uow.Commit();
+                _uow.Commit();
+            }
+            catch (Exception)
+            {
+                try { _uow.Rollback(); } catch { }
+                throw;
+            }
         }
 
         public void Actualizar(Usuario u)
         {
-            Validar(u);
+            _uow.BeginTransaction();
+            try
+            {
+                Validar(u);
 
-            if (_uow.UsuarioRepository.ExisteUsername(u.Username, u.Id))
-                throw new Exception("El nombre de usuario ya existe.");
+                if (_uow.UsuarioRepository.ExisteUsername(u.Username, u.Id))
+                    throw new Exception("El nombre de usuario ya existe.");
 
-            if (_uow.UsuarioRepository.ExisteDni(u.Dni, u.Id))
-                throw new Exception("El DNI ya existe.");
+                if (_uow.UsuarioRepository.ExisteDni(u.Dni, u.Id))
+                    throw new Exception("El DNI ya existe.");
 
-            var dbu = _uow.UsuarioRepository.ObtenerPorId(u.Id);
-            if (dbu == null) throw new Exception("Usuario no encontrado.");
+                var dbu = _uow.UsuarioRepository.ObtenerPorId(u.Id);
+                if (dbu == null) throw new Exception("Usuario no encontrado.");
 
-            dbu.Username = u.Username;
-            dbu.Nombre = u.Nombre;
-            dbu.Dni = u.Dni;
-            dbu.Rol = u.Rol;
-            dbu.Activo = u.Activo;
+                dbu.Username = u.Username;
+                dbu.Nombre = u.Nombre;
+                dbu.Dni = u.Dni;
+                dbu.Rol = u.Rol;
+                dbu.Activo = u.Activo;
 
-            _uow.UsuarioRepository.Actualizar(dbu);
-            _bitacora.Registrar(UsuarioActual(), "Edición Usuario", $"Usuario: {u.Username}");
+                _uow.UsuarioRepository.Actualizar(dbu);
+                _bitacora.Registrar(UsuarioActual(), "Edición Usuario", $"Usuario: {u.Username}");
 
-            _uow.Commit();
+                _uow.Commit();
+            }
+            catch (Exception)
+            {
+                try { _uow.Rollback(); } catch { }
+                throw;
+            }
         }
 
         public void CambiarPassword(int userId, string nuevoPassword)
         {
-            if (string.IsNullOrWhiteSpace(nuevoPassword) || nuevoPassword.Length < 8)
-                throw new Exception("La contraseña nueva debe tener al menos 8 caracteres.");
+            _uow.BeginTransaction();
+            try
+            {
+                if (string.IsNullOrWhiteSpace(nuevoPassword) || nuevoPassword.Length < 8)
+                    throw new Exception("La contraseña nueva debe tener al menos 8 caracteres.");
 
-            var u = _uow.UsuarioRepository.ObtenerPorId(userId);
-            if (u == null) throw new Exception("Usuario no encontrado.");
+                var u = _uow.UsuarioRepository.ObtenerPorId(userId);
+                if (u == null) throw new Exception("Usuario no encontrado.");
 
-            u.PasswordHash = _hasher.Hash(nuevoPassword);
+                u.PasswordHash = _hasher.Hash(nuevoPassword);
 
-            _uow.UsuarioRepository.Actualizar(u);
-            _bitacora.Registrar(UsuarioActual(), "Cambio Password", $"Usuario: {u.Username}");
+                _uow.UsuarioRepository.Actualizar(u);
+                _bitacora.Registrar(UsuarioActual(), "Cambio Password", $"Usuario: {u.Username}");
 
-            _uow.Commit();
+                _uow.Commit();
+            }
+            catch (Exception)
+            {
+                try { _uow.Rollback(); } catch { }
+                throw;
+            }
         }
 
         public void ToggleActivo(int userId, bool activo)
         {
-            var u = _uow.UsuarioRepository.ObtenerPorId(userId);
-            if (u == null) throw new Exception("Usuario no encontrado.");
+            _uow.BeginTransaction();
+            try
+            {
+                var u = _uow.UsuarioRepository.ObtenerPorId(userId);
+                if (u == null) throw new Exception("Usuario no encontrado.");
 
-            u.Activo = activo;
+                u.Activo = activo;
 
-            _uow.UsuarioRepository.Actualizar(u);
-            _bitacora.Registrar(UsuarioActual(), activo ? "Activar Usuario" : "Desactivar Usuario", $"Usuario: {u.Username}");
+                _uow.UsuarioRepository.Actualizar(u);
+                _bitacora.Registrar(UsuarioActual(), activo ? "Activar Usuario" : "Desactivar Usuario", $"Usuario: {u.Username}");
 
-            _uow.Commit();
+                _uow.Commit();
+            }
+            catch (Exception)
+            {
+                try { _uow.Rollback(); } catch { }
+                throw;
+            }
         }
 
-        public void Validar(Usuario u)
+        public void GuardarIdiomaPreferido(int usuarioId, string codigoCultura)
+        {
+            _uow.BeginTransaction();
+            try
+            {
+                var usuario = _uow.UsuarioRepository.ObtenerPorId(usuarioId);
+                if (usuario == null) throw new Exception("Usuario no encontrado.");
+
+                usuario.IdiomaPreferido = codigoCultura;
+
+                _uow.UsuarioRepository.Actualizar(usuario);
+                _bitacora.Registrar(usuario.Username, "Cambio Idioma", $"Nuevo idioma: {codigoCultura}");
+                _uow.Commit();
+
+                if (_session.Usuario != null)
+                {
+                    _session.Usuario.IdiomaPreferido = codigoCultura;
+                }
+            }
+            catch (Exception)
+            {
+                try { _uow.Rollback(); } catch { }
+                throw;
+            }
+        }
+
+        private void Validar(Usuario u)
         {
             if (u == null) throw new ArgumentNullException(nameof(u));
             if (string.IsNullOrWhiteSpace(u.Username)) throw new Exception("El nombre de usuario es requerido.");
@@ -174,6 +228,50 @@ namespace Servire.Bll.Services
         }
 
         private string UsuarioActual() => _session.Username ?? "(sistema)";
-        #endregion
+
+        private void CargarPermisos(Usuario u)
+        {
+            // ESTO SIGUE PENDIENTE DE REFACTORIZAR PARA NO USAR NEW()
+            // Pero por ahora lo dejamos igual para que compile sin tocar lógica profunda
+            var pAccesoAdmin = new Patente { Nombre = "Acceso_Admin" };
+            var pGestionUsuarios = new Patente { Nombre = "Gestion_Usuarios" };
+            var pAccesoBitacora = new Patente { Nombre = "Acceso_Bitacora" };
+            var pTomarPedidos = new Patente { Nombre = "Tomar_Pedidos" };
+            var pVerComandas = new Patente { Nombre = "Ver_Comandas" };
+            var pGestionStock = new Patente { Nombre = "Gestion_Stock" };
+
+            var fAdmin = new Familia { Nombre = "Admin" };
+            fAdmin.Agregar(pAccesoAdmin);
+            fAdmin.Agregar(pGestionUsuarios);
+            fAdmin.Agregar(pAccesoBitacora);
+            fAdmin.Agregar(pGestionStock);
+
+            var fMozo = new Familia { Nombre = "Mozo" };
+            fMozo.Agregar(pTomarPedidos);
+
+            var fCocina = new Familia { Nombre = "Cocina" };
+            fCocina.Agregar(pVerComandas);
+
+            var fBarra = new Familia { Nombre = "Barra" };
+            fBarra.Agregar(pVerComandas);
+
+            u.Permisos.Clear();
+
+            switch (u.Rol)
+            {
+                case Rol.Admin:
+                    u.Permisos.Add(fAdmin);
+                    break;
+                case Rol.Mozo:
+                    u.Permisos.Add(fMozo);
+                    break;
+                case Rol.Cocina:
+                    u.Permisos.Add(fCocina);
+                    break;
+                case Rol.Barra:
+                    u.Permisos.Add(fBarra);
+                    break;
+            }
+        }
     }
 }

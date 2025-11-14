@@ -1,12 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using Servire.Bll.Interfaces;
 using System.Text;
-using System.Windows.Forms;
-using Servire.Bll.Interfaces;
-using Servire.Domain.Entities;
-using Servire.Bll.DTOs;
-using System.Collections.Generic; // <-- Asegúrate de tener este using
 
 namespace Servire.UI.Forms
 {
@@ -22,19 +15,21 @@ namespace Servire.UI.Forms
             _errorLog = errorLog;
         }
 
-        // --- INICIO DE CORRECCIONES EN CargarErrores ---
         private void CargarErrores()
         {
-            // 1. USA LOS FILTROS DE FECHA CORRECTOS (dpDesde2, dpHasta2)
+            try
+            {
+                _errorLog.GetUoW().Commit();
+           
             var todosLosDatos = _errorLog.Listar(
                 dpDesde2.Value,
                 dpHasta2.Value
             );
 
-            // 2. APLICA LOS FILTROS DE TEXTO Y NIVEL
+            
             var userFilter = txtUsuario2.Text.Trim().ToLower();
             var textoFilter = txtTexto2.Text.Trim().ToLower();
-            // cboNivel.Text o cboNivel.SelectedItem.ToString()
+         
             var nivelFilter = cboNivel.SelectedIndex > 0 ? cboNivel.Text.ToLower() : "";
 
             var datosFiltrados = todosLosDatos.AsEnumerable();
@@ -59,13 +54,16 @@ namespace Servire.UI.Forms
             dgvErrores.DataSource = listaFinal;
             ActualizarStatus(listaFinal.Count);
         }
-        // --- FIN DE CORRECCIONES EN CargarErrores ---
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error al cargar Errores", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
         private void frmBitacora_Load(object sender, EventArgs e)
         {
             dpDesde.Value = DateTime.Today.AddDays(-7);
             dpHasta.Value = DateTime.Today;
-            // También inicializa las fechas de la otra pestaña
             dpDesde2.Value = DateTime.Today.AddDays(-7);
             dpHasta2.Value = DateTime.Today;
 
@@ -75,33 +73,26 @@ namespace Servire.UI.Forms
                 if (cboNivel != null) cboNivel.Visible = false;
             }
 
-            // Inicializa el ComboBox
             if (cboNivel != null) cboNivel.SelectedIndex = 0;
 
             Buscar();
         }
 
-        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            // Este evento estaba vacío, pero el evento correcto está más abajo
-            // (tabControl1_SelectedIndexChanged_1) y ya está bien implementado.
-        }
+   
 
         private void btnBuscar_Click(object sender, EventArgs e)
         {
             Buscar();
         }
 
-        // --- INICIO DE CORRECCIONES EN btnLimpiar_Click ---
+        
         private void btnLimpiar_Click(object sender, EventArgs e)
         {
-            // Limpia filtros de Bitácora
             txtUsuario.Text = "";
             txtTexto.Text = "";
             dpDesde.Value = DateTime.Today.AddDays(-7);
             dpHasta.Value = DateTime.Today;
 
-            // Limpia filtros de Errores
             txtUsuario2.Text = "";
             txtTexto2.Text = "";
             dpDesde2.Value = DateTime.Today.AddDays(-7);
@@ -110,8 +101,7 @@ namespace Servire.UI.Forms
 
             Buscar();
         }
-        // --- FIN DE CORRECCIONES EN btnLimpiar_Click ---
-
+     
         private void btnExportar_Click(object sender, EventArgs e)
         {
             ExportarCsv();
@@ -131,6 +121,7 @@ namespace Servire.UI.Forms
 
         private void CargarBitacora()
         {
+            _bitacora.GetUoW().Commit();
             var todosLosDatos = _bitacora.Listar(dpDesde.Value, dpHasta.Value);
             var userFilter = txtUsuario.Text.Trim().ToLower();
             var textoFilter = txtTexto.Text.Trim().ToLower();
@@ -181,10 +172,6 @@ namespace Servire.UI.Forms
 
         private static string CsvQuote(string s) => $"\"{(s ?? "").Replace("\"", "\"\"")}\"";
 
-        // Este método está bien, pero en el Designer.cs tienes un montón de filtros
-        // (txtUsuario2, txtTexto2, dpDesde2, dpHasta2) que no estás ocultando/mostrando.
-        // Por ahora lo dejamos así, pero ten en cuenta que los filtros de la pestaña "Errores"
-        // (menos cboNivel) también se verán en la pestaña "Bitácora" y viceversa.
         private void tabControl1_SelectedIndexChanged_1(object sender, EventArgs e)
         {
             bool esBitacora = tabControl1.SelectedTab == tabBitacora;
@@ -192,8 +179,6 @@ namespace Servire.UI.Forms
             if (txtUsuario != null) txtUsuario.Visible = esBitacora;
             if (lblTexto != null) lblTexto.Visible = esBitacora;
             if (txtTexto != null) txtTexto.Visible = esBitacora;
-
-            // Oculta/Muestra TODOS los filtros de la pestaña Errores
             if (lblUsuario2 != null) lblUsuario2.Visible = !esBitacora;
             if (txtUsuario2 != null) txtUsuario2.Visible = !esBitacora;
             if (lblTexto2 != null) lblTexto2.Visible = !esBitacora;
@@ -205,7 +190,7 @@ namespace Servire.UI.Forms
             if (lblNivel != null) lblNivel.Visible = !esBitacora;
             if (cboNivel != null) cboNivel.Visible = !esBitacora;
 
-
+           
             Buscar();
         }
     }
