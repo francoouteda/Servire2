@@ -1,14 +1,15 @@
 ﻿using Servire.Domain.Entities;
 using System;
 using Servire.Bll.Interfaces;
-using Servire.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Servire.Bll.Services
 {
     public class StockService : IStockService
     {
         private readonly IUnitOfWork _uow;
-        private readonly IBitacoraService _bitacora;
+        //private readonly IBitacoraService _bitacora;
+        private readonly ILogger _bitacora;
         private readonly ISessionContext _session;
 
         public IUnitOfWork GetUoW()
@@ -16,7 +17,7 @@ namespace Servire.Bll.Services
             return _uow;
         }
 
-        public StockService(IUnitOfWork uow, IBitacoraService bitacora, ISessionContext session)
+        public StockService(IUnitOfWork uow, ILogger bitacora, ISessionContext session)
         {
             _uow = uow;
             _bitacora = bitacora;
