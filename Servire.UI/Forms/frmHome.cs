@@ -1,10 +1,10 @@
-﻿// 1. Usings para la nueva capa 'Servire.Services'
-using Servire.Services.Domain.Composite;
+﻿using Servire.Services.Domain.Composite;
 using Servire.Services.Implementations;
-using Servire.Services.Tools;
-using Servire.UI.Forms;
+using Servire.UI.Forms; // Asegúrate que esto esté
 using System;
 using System.Windows.Forms;
+// 1. Usings para la nueva capa 'Servire.Services'
+using Servire.Services.Tools; // No parece usarse aquí, pero estaba en tu original
 
 namespace Servire.UI.Forms
 {
@@ -28,12 +28,11 @@ namespace Servire.UI.Forms
         {
             try
             {
-                // Instanciamos el Login sin pasarle nada
-                frmLogin loginForm = new frmLogin();
-                loginForm.ShowDialog(this); // 'this' es el Owner
-
+                // Esta lógica de login se moverá a Program.cs (ver sección 4)
+                // Por ahora, asumimos que UsuarioLogueado ya fue asignado ANTES de mostrar frmHome
                 if (this.UsuarioLogueado == null)
                 {
+                    MessageBox.Show("Error fatal: No se ha iniciado sesión.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     Application.Exit();
                     return;
                 }
@@ -41,11 +40,10 @@ namespace Servire.UI.Forms
                 this.Text = $"Servire - {UsuarioLogueado.Nombre} ({UsuarioLogueado.Rol})";
 
                 // 6. Validación de permisos con el método 'TienePermiso'
-                // (Los nombres de botones SÍ existen en tu .Designer.cs)
-                btnUsuarios.Enabled = UsuarioLogueado.TienePermiso("Gestion_Usuarios");
-                btnStock.Enabled = UsuarioLogueado.TienePermiso("Gestion_Stock");
-                btnComandas.Enabled = UsuarioLogueado.TienePermiso("Ver_Comandas");
-                btnBitacora.Enabled = UsuarioLogueado.TienePermiso("Acceso_Bitacora");
+                // CORRECCIÓN: Usamos los nombres de los MenuStrip
+                menuUsuarios.Enabled = UsuarioLogueado.TienePermiso("Gestion_Usuarios");
+                MenuStock.Enabled = UsuarioLogueado.TienePermiso("Gestion_Stock");
+                menuBitacora.Enabled = UsuarioLogueado.TienePermiso("Acceso_Bitacora");
             }
             catch (Exception ex)
             {
@@ -55,33 +53,46 @@ namespace Servire.UI.Forms
             }
         }
 
-        // --- CÓDIGO COMPLETO: Eventos de Botón ---
+        // --- CÓDIGO COMPLETO: Eventos de Menú ---
         // (Respetando los nombres de tu .Designer.cs)
 
-        private void btnUsuarios_Click(object sender, EventArgs e)
+        // CORRECCIÓN: Renombrado de 'btnUsuarios_Click' a 'menuUsuarios_Click'
+        private void menuUsuarios_Click(object sender, EventArgs e) // Antes 'btnUsuarios_Click'
         {
-            // Pasamos el usuario logueado para auditoría y permisos
             frmUsuarios frm = new frmUsuarios(UsuarioLogueado);
             frm.ShowDialog();
         }
 
-        private void btnBitacora_Click(object sender, EventArgs e)
+        // CORRECCIÓN: Renombrado de 'btnBitacora_Click' a 'menuBitacora_Click'
+        private void menuBitacora_Click(object sender, EventArgs e) // Antes 'btnBitacora_Click'
         {
-            // Pasamos el usuario logueado
             frmBitacora frm = new frmBitacora(UsuarioLogueado);
             frm.ShowDialog();
         }
-
-        private void btnComandas_Click(object sender, EventArgs e)
+        // CORRECCIÓN: Renombrado de 'btnStock_Click' a 'menuStock_Click'
+        private void menuStock_Click(object sender, EventArgs e)
         {
-            frmComandas frm = new frmComandas();
-            frm.ShowDialog();
+            // Este formulario (frmStock) no existe en tu proyecto
+            // Supongo que querías abrir 'ucStock' dentro del panel principal
+            // Esto requiere más refactorización (DI y manejo de UserControls)
+            // Por ahora, lo comento.
+            // frmStock frm = new frmStock();
+            // frm.ShowDialog();
+            MessageBox.Show("Funcionalidad 'Stock' no implementada en frmHome.");
         }
 
-        private void btnStock_Click(object sender, EventArgs e)
+        // NUEVO: Manejador para el menú Productos que existía en la UI
+        private void menuProductos_Click(object sender, EventArgs e)
         {
-            frmStock frm = new frmStock();
-            frm.ShowDialog();
+            // Esta lógica también debería usar el panel principal 'pnlContenedorPrincipal'
+            // en lugar de ShowDialog()
+            MessageBox.Show("Funcionalidad 'Productos' no implementada en frmHome.");
+        }
+
+        // El evento 'menuSalir_Click' ya estaba correcto en tu .Designer
+        private void menuSalir_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }

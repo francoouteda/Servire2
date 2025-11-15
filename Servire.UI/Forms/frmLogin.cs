@@ -1,7 +1,7 @@
-﻿using Servire.Services.Dal.Implementations; // USINGS NUEVOS
+﻿using Servire.Services.Dal.Interfaces; // USAR INTERFAZ
 using Servire.Services.Domain.Composite;
-using Servire.Services.Implementations;
-using Servire.Services.Tools;
+using Servire.Services.Interfaces; // USAR INTERFAZ
+using Servire.Bll.Interfaces; // Para IPasswordHasher
 using System;
 using System.Windows.Forms;
 
@@ -9,16 +9,21 @@ namespace Servire.UI.Forms
 {
     public partial class frmLogin : Form
     {
-        private readonly UsuarioRepository _usuarioRepository;
-        private readonly PasswordHasher _passwordHasher;
-        private readonly LoggerService _loggerService;
+        // Dependencias Inyectadas
+        private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IPasswordHasher _passwordHasher;
+        private readonly ILogger _loggerService;
 
-        public frmLogin() // Constructor SIN DI
+        // Propiedad pública para que Program.cs recoja el resultado
+        public Usuario UsuarioLogueado { get; private set; }
+
+        // CORRECCIÓN: Constructor con Inyección de Dependencias
+        public frmLogin(IUsuarioRepository usuarioRepository, IPasswordHasher passwordHasher, ILogger loggerService)
         {
             InitializeComponent();
-            _usuarioRepository = new UsuarioRepository();
-            _passwordHasher = new PasswordHasher();
-            _loggerService = new LoggerService();
+            _usuarioRepository = usuarioRepository;
+            _passwordHasher = passwordHasher;
+            _loggerService = loggerService;
         }
 
         private void btnIngresar_Click(object sender, EventArgs e)
@@ -34,14 +39,19 @@ namespace Servire.UI.Forms
 
             try
             {
+                // Usamos la dependencia inyectada
                 var usuario = _usuarioRepository.ObtenerPorUsername(usernameIntentado);
 
                 if (usuario != null && usuario.Habilitado)
                 {
+                    // Usamos la dependencia inyectada
                     if (_passwordHasher.Verify(txtPassword.Text, usuario.PasswordHash))
                     {
                         _loggerService.Info($"Inicio de sesión exitoso", origen, usuario.Username);
-                        (this.Owner as frmHome).UsuarioLogueado = usuario;
+
+                        // Asignamos el usuario a la propiedad pública
+                        this.UsuarioLogueado = usuario;
+
                         this.DialogResult = DialogResult.OK;
                         this.Close();
                     }
@@ -69,5 +79,9 @@ namespace Servire.UI.Forms
             this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
+
+        // Eventos vacíos que estaban en tu designer, los dejamos
+        private void txtUsuario_TextChanged(object sender, EventArgs e) { }
+        private void frmLogin_Load(object sender, EventArgs e) { }
     }
 }

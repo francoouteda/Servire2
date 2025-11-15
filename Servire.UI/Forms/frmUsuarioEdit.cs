@@ -21,6 +21,7 @@ namespace Servire.UI.Forms
             InitializeComponent();
             _usuarioAEditar = usuarioAEditar;
             _usuarioLogueado = usuarioLogueado;
+            // Esto es parte del problema de arquitectura, pero lo dejamos por ahora
             _usuarioRepository = new UsuarioRepository();
             _logger = new LoggerService();
         }
@@ -34,8 +35,8 @@ namespace Servire.UI.Forms
                 _esNuevo = true;
                 this.Text = "Nuevo Usuario";
                 _usuarioAEditar = new Usuario();
-                // CORRECCIÓN: Nombre 'chkHabilitado'
-                chkHabilitado.Checked = true;
+                // CORRECCIÓN: Nombre 'chkActivo'
+                chkActivo.Checked = true;
             }
             else
             {
@@ -43,44 +44,48 @@ namespace Servire.UI.Forms
                 this.Text = $"Editando a {_usuarioAEditar.Username}";
 
                 // CORRECCIÓN: Nombres de todos los controles
-                txtUsuario.Text = _usuarioAEditar.Username;
-                txtNombreApellido.Text = _usuarioAEditar.Nombre;
-                txtDocumento.Text = _usuarioAEditar.Dni;
-                txtMail.Text = _usuarioAEditar.Email;
-                chkHabilitado.Checked = _usuarioAEditar.Habilitado;
-                cmbRoles.SelectedItem = _usuarioAEditar.Rol; // 'cmbRoles'
+                txtUserName.Text = _usuarioAEditar.Username;
+                txtNombre.Text = _usuarioAEditar.Nombre;
+                txtdni.Text = _usuarioAEditar.Dni;
+                // txtMail no existe en el .designer, se omite la lógica de Email
+                chkActivo.Checked = _usuarioAEditar.Habilitado;
+                cboRol.SelectedItem = _usuarioAEditar.Rol; // 'cboRol'
 
                 // Deshabilitamos contraseñas en modo Edición
-                txtPass.Enabled = false;
-                txtPassConfirm.Enabled = false;
+                txtPassword.Enabled = false;
+                txtConfirm.Enabled = false;
             }
         }
 
         private void CargarRoles()
         {
-            // CORRECCIÓN: Nombre 'cmbRoles'
-            cmbRoles.DataSource = Enum.GetValues(typeof(Rol));
+            // CORRECCIÓN: Nombre 'cboRol'
+            cboRol.DataSource = Enum.GetValues(typeof(Rol));
         }
 
-        // CORRECCIÓN: Tu botón se llama 'btnGuardar', no 'btnAceptar'
-        private void btnAceptar_Click(object sender, EventArgs e)
+        // CORRECCIÓN: El evento se llama 'btnGuardar_Click' para coincidir con el botón
+        private void btnGuardar_Click(object sender, EventArgs e)
         {
             try
             {
                 if (!ValidarControles()) return;
 
                 // CORRECCIÓN: Nombres de todos los controles
-                _usuarioAEditar.Username = txtUsuario.Text.Trim();
-                _usuarioAEditar.Nombre = txtNombreApellido.Text.Trim();
-                _usuarioAEditar.Dni = txtDocumento.Text.Trim();
-                _usuarioAEditar.Email = txtMail.Text.Trim();
-                _usuarioAEditar.Habilitado = chkHabilitado.Checked;
-                _usuarioAEditar.Rol = (Rol)cmbRoles.SelectedItem;
+                _usuarioAEditar.Username = txtUserName.Text.Trim();
+                _usuarioAEditar.Nombre = txtNombre.Text.Trim();
+                _usuarioAEditar.Dni = txtdni.Text.Trim();
+                // Lógica de Email omitida
+                _usuarioAEditar.Habilitado = chkActivo.Checked;
+                _usuarioAEditar.Rol = (Rol)cboRol.SelectedItem;
 
                 if (_esNuevo)
                 {
-                    // CORRECCIÓN: Nombre 'txtPass'
-                    _usuarioAEditar.SetPassword(txtPass.Text);
+                    // CORRECCIÓN: Nombre 'txtPassword'
+                    // El método SetPassword fue eliminado de tu entidad 'Usuario'
+                    // Asumiré que quieres hashear y asignar
+                    var hasher = new PasswordHasher(); // Otro 'new' que debería ser DI
+                    _usuarioAEditar.PasswordHash = hasher.Hash(txtPassword.Text);
+
                     _usuarioRepository.RegistrarUsuario(_usuarioAEditar);
                     _logger.Info($"Usuario '{_usuarioAEditar.Username}' creado.", "frmUsuarioEdit", _usuarioLogueado.Username);
                 }
@@ -103,20 +108,20 @@ namespace Servire.UI.Forms
         private bool ValidarControles()
         {
             // CORRECCIÓN: Nombres de controles
-            if (string.IsNullOrWhiteSpace(txtUsuario.Text) || string.IsNullOrWhiteSpace(txtNombreApellido.Text) || string.IsNullOrWhiteSpace(txtDocumento.Text))
+            if (string.IsNullOrWhiteSpace(txtUserName.Text) || string.IsNullOrWhiteSpace(txtNombre.Text) || string.IsNullOrWhiteSpace(txtdni.Text))
             {
                 MessageBox.Show("Username, Nombre y DNI son requeridos.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
             if (_esNuevo)
             {
-                // CORRECCIÓN: Nombres 'txtPass' y 'txtPassConfirm'
-                if (string.IsNullOrWhiteSpace(txtPass.Text) || txtPass.Text.Length < 8)
+                // CORRECCIÓN: Nombres 'txtPassword' y 'txtConfirm'
+                if (string.IsNullOrWhiteSpace(txtPassword.Text) || txtPassword.Text.Length < 8)
                 {
                     MessageBox.Show("La contraseña es requerida (mín. 8 caracteres).", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return false;
                 }
-                if (txtPass.Text != txtPassConfirm.Text)
+                if (txtPassword.Text != txtConfirm.Text)
                 {
                     MessageBox.Show("Las contraseñas no coinciden.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return false;
@@ -125,13 +130,13 @@ namespace Servire.UI.Forms
 
             Guid? idExcluir = _esNuevo ? null : (Guid?)_usuarioAEditar.IdUsuario;
 
-            // CORRECCIÓN: Nombres 'txtUsuario' y 'txtDocumento'
-            if (_usuarioRepository.ExisteUsername(txtUsuario.Text.Trim(), idExcluir))
+            // CORRECCIÓN: Nombres 'txtUserName' y 'txtdni'
+            if (_usuarioRepository.ExisteUsername(txtUserName.Text.Trim(), idExcluir))
             {
                 MessageBox.Show("El nombre de usuario ya existe.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
-            if (_usuarioRepository.ExisteDni(txtDocumento.Text.Trim(), idExcluir))
+            if (_usuarioRepository.ExisteDni(txtdni.Text.Trim(), idExcluir))
             {
                 MessageBox.Show("El DNI ya existe.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
@@ -144,16 +149,5 @@ namespace Servire.UI.Forms
             this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
-
-        // -------------------------------------------------------------------
-        // MÉTODOS QUE NO SE USAN (De tu código .cs original)
-        // -------------------------------------------------------------------
-
-        // ELIMINADO: private void cmbRol_DataSourceChanged(object sender, EventArgs e)
-        // (La lógica ahora está en el Load)
-
-        // Estos eventos estaban en tu .cs pero no en el .Designer, así que los omito:
-        // private void txtDni_KeyPress(object sender, KeyPressEventArgs e)
-        // private void txtNombre_KeyPress(object sender, KeyPressEventArgs e)
     }
 }
