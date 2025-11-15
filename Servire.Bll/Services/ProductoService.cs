@@ -1,21 +1,21 @@
-﻿using Servire.Bll.Interfaces;
-using Servire.Domain.Entities;
+﻿using Servire.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Servire.Services.Interfaces;
 
 namespace Servire.Bll.Services
 {
     public class ProductoService : IProductoService
     {
         private readonly IUnitOfWork _uow;
-        private readonly IBitacoraService _bitacora;
+       
         private readonly ISessionContext _session;
 
-        public ProductoService(IUnitOfWork uow, IBitacoraService bitacora, ISessionContext session)
+        public ProductoService(IUnitOfWork uow, ISessionContext session)
         {
             _uow = uow;
-            _bitacora = bitacora;
+            
             _session = session;
         }
         public IUnitOfWork GetUoW()

@@ -1,6 +1,7 @@
 ﻿using Servire.Bll.Services;
 using Servire.Domain.Entities;
-using Servire.Domain.Entities.Seguridad;
+using Servire.Services.Domain.Composite; // <- AÑADE ESTA LÍNEA
+using Servire.Services.Interfaces; // <- AÑADE ESTA LÍNEA
 
 namespace Servire.UI.Infrastructure
 {

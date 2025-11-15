@@ -13,13 +13,16 @@ namespace Servire.Services.Tools
 
         static SqlHelper()
         {
+            // Truco para leer appsettings.json desde una clase estática en .NET 8
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
             IConfiguration configuration = builder.Build();
 
-            // CORRECCIÓN: Busca "DefaultConnection" en lugar de "MainConString"
+            // CORRECCIÓN:
+            // Cambiamos "MainConString" por "DefaultConnection" para que coincida
+            // con tu archivo appsettings.json
             conString = configuration.GetConnectionString("DefaultConnection");
         }
         public static Int32 ExecuteNonQuery(String commandText, CommandType commandType, params SqlParameter[] parameters)

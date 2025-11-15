@@ -1,5 +1,4 @@
-﻿using Servire.Bll.Interfaces;
-
+﻿using Servire.Services.Interfaces;
 namespace Servire.Services.Tools
 {
     public class PasswordHasher : IPasswordHasher

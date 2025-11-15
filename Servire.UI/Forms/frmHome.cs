@@ -1,10 +1,12 @@
-﻿using Servire.Services.Domain.Composite;
-using Servire.Services.Implementations;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Servire.Services.Dal.Interfaces;
+using Servire.Services.Domain.Composite;
+
+using Servire.Services.Interfaces;
+using Servire.Services.Tools; // No parece usarse aquí, pero estaba en tu original
 using Servire.UI.Forms; // Asegúrate que esto esté
 using System;
 using System.Windows.Forms;
-// 1. Usings para la nueva capa 'Servire.Services'
-using Servire.Services.Tools; // No parece usarse aquí, pero estaba en tu original
 
 namespace Servire.UI.Forms
 {
@@ -14,25 +16,27 @@ namespace Servire.UI.Forms
         public Usuario UsuarioLogueado { get; set; }
 
         // 3. Instanciamos el Logger
-        private readonly LoggerService _logger;
+        private readonly ILogger _logger;
+        private readonly IServiceProvider _serviceProvider;
 
         // 4. Constructor sin Inyección de Dependencias
-        public frmHome()
+        public frmHome(ILogger logger, IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _logger = new LoggerService();
+            _logger = logger;
+            _serviceProvider = serviceProvider; // Asignamos el proveedor
         }
-
         // 5. frmHome_Load refactorizado
         private void frmHome_Load(object sender, EventArgs e)
         {
             try
             {
+                frmLogin loginForm = _serviceProvider.GetRequiredService<frmLogin>();
+                loginForm.ShowDialog(this);
                 // Esta lógica de login se moverá a Program.cs (ver sección 4)
                 // Por ahora, asumimos que UsuarioLogueado ya fue asignado ANTES de mostrar frmHome
                 if (this.UsuarioLogueado == null)
                 {
-                    MessageBox.Show("Error fatal: No se ha iniciado sesión.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     Application.Exit();
                     return;
                 }
@@ -57,16 +61,22 @@ namespace Servire.UI.Forms
         // (Respetando los nombres de tu .Designer.cs)
 
         // CORRECCIÓN: Renombrado de 'btnUsuarios_Click' a 'menuUsuarios_Click'
-        private void menuUsuarios_Click(object sender, EventArgs e) // Antes 'btnUsuarios_Click'
+        private void menuUsuarios_Click(object sender, EventArgs e)
         {
-            frmUsuarios frm = new frmUsuarios(UsuarioLogueado);
+            // OBTENEMOS LOS SERVICIOS REQUERIDOS
+            var repo = _serviceProvider.GetRequiredService<IUsuarioRepository>();
+            var logger = _serviceProvider.GetRequiredService<ILogger>();
+
+            // CREAMOS EL FORMULARIO PASANDO TODAS LAS DEPENDENCIAS
+            frmUsuarios frm = new frmUsuarios(UsuarioLogueado, repo, logger); // <- AÑADIR
+
             frm.ShowDialog();
         }
 
         // CORRECCIÓN: Renombrado de 'btnBitacora_Click' a 'menuBitacora_Click'
         private void menuBitacora_Click(object sender, EventArgs e) // Antes 'btnBitacora_Click'
         {
-            frmBitacora frm = new frmBitacora(UsuarioLogueado);
+            frmBitacora frm = new frmBitacora(UsuarioLogueado); // <- MANTENER (lo arreglamos después)
             frm.ShowDialog();
         }
         // CORRECCIÓN: Renombrado de 'btnStock_Click' a 'menuStock_Click'

@@ -1,6 +1,7 @@
 ﻿using Servire.Bll.Interfaces;
 using Servire.Bll.Services;
 using Servire.Domain.Entities;
+using Servire.Services.Interfaces;
 
 namespace Servire.UI.Forms
 {
@@ -8,13 +9,13 @@ namespace Servire.UI.Forms
     {
         private readonly IProductoService _productoService;
         private readonly IStockService _stockService; 
-        private readonly IErrorLogger _log;
+        private readonly ILogger _log;
 
         private Producto? _productoEditado; 
         private List<Ingrediente> _recetaActual;
         private List<Insumo> _insumosDisponibles; 
 
-        public frmProductoEdit(IProductoService productoService, IStockService stockService, IErrorLogger log)
+        public frmProductoEdit(IProductoService productoService, IStockService stockService, ILogger log)
         {
             InitializeComponent();
             _productoService = productoService;

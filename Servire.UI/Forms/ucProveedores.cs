@@ -2,19 +2,20 @@
 using Servire.Bll.Interfaces;
 using Servire.Bll.Services;
 using Servire.Domain.Entities;
+using Servire.Services.Interfaces;
 
 namespace Servire.UI.Forms
 {
     public partial class ucProveedores : UserControl
     {
         private readonly IStockService _stockService;
-        private readonly IErrorLogger _log;
+        private readonly ILogger _log;
         private List<Proveedor> _listaCompleta;
 
         public delegate void NavegacionRequeridaHandler(object sender, UserControl controlANavegar);
         public event NavegacionRequeridaHandler? OnNavegacionRequerida;
 
-        public ucProveedores(IStockService stockService, IErrorLogger log)
+        public ucProveedores(IStockService stockService, ILogger log)
         {
             InitializeComponent();
 

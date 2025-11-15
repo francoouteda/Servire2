@@ -55,7 +55,9 @@ namespace Servire.UI
             // Registramos los repositorios de 'Services'
             // OJO: Tu capa Services usa SqlHelper (estático) y no DI, 
             // así que registramos el repositorio concreto.
-            services.AddSingleton<IUsuarioRepository, UsuarioRepository>();
+            services.AddSingleton<Servire.Services.Dal.Interfaces.IUsuarioRepository, Servire.Services.Dal.Implementations.UsuarioRepository>();
+            services.AddSingleton<Servire.Services.Interfaces.ILogger, Servire.Services.Implementations.LoggerService>();
+            services.AddSingleton<Servire.Bll.Interfaces.IPasswordHasher, Servire.Services.Tools.PasswordHasher>();
 
             // Registramos la Sesión (aunque tu UiSessionContext es un Singleton estático, lo cual es otro anti-patrón)
             services.AddSingleton<ISessionContext>(UiSessionContext.Instance);
@@ -76,21 +78,14 @@ namespace Servire.UI
             Services = services.BuildServiceProvider();
 
             // --- FLUJO DE INICIO CORRECTO ---
-            using (var loginForm = Services.GetRequiredService<frmLogin>())
-            {
-                // Mostramos el login como un diálogo
-                if (loginForm.ShowDialog() == DialogResult.OK)
-                {
-                    var homeForm = Services.GetRequiredService<frmHome>();
-                    homeForm.UsuarioLogueado = CurrentUser; // Le pasamos el usuario
-                    Application.Run(homeForm);
-                }
-                else
-                {
-                    // Si el usuario cierra el login, salimos de la app
-                    Application.Exit();
+            // --- CORRECCIÓN DEL FLUJO DE INICIO ---
+            // var login = Services.GetRequiredService<frmLogin>(); // <- NO EJECUTAR LOGIN PRIMERO
+            // Application.Run(login);
+
+            // EJECUTAR frmHome (que ahora recibe ILogger por DI)
+            var home = Services.GetRequiredService<frmHome>();
+            Application.Run(home); 
                 }
             }
         }
-    }
-}
+    

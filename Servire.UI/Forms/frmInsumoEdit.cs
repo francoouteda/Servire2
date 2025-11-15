@@ -1,22 +1,23 @@
 ﻿using Servire.Bll.Interfaces;
 using Servire.Bll.Services;
 using Servire.Domain.Entities;
+using Servire.Services.Interfaces;
 
 namespace Servire.UI.Forms
 {
     public partial class frmInsumoEdit : Form
     {
         private readonly IStockService _stockService;
-        private readonly IErrorLogger _log;
+        private readonly ILogger _log; 
         private Insumo? _insumoEditado;
 
-        public frmInsumoEdit(IStockService stockService, IErrorLogger log)
+
+        public frmInsumoEdit(IStockService stockService, ILogger log) // <- Corrección aquí
         {
             InitializeComponent();
             _stockService = stockService;
             _log = log;
         }
-
         public void CargarInsumo(Insumo insumo)
         {
             _insumoEditado = insumo;
@@ -136,7 +137,6 @@ namespace Servire.UI.Forms
         {
             this.DialogResult = DialogResult.Cancel;
         }
-
         private void ManejarError(string titulo, Exception ex)
         {
             _log.Error(nameof(frmInsumoEdit), ex, Program.CurrentUser?.Username);

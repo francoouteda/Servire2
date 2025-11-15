@@ -1,9 +1,7 @@
-﻿using Microsoft.Data.SqlClient;
-using Servire.Bll.Interfaces;
-using Servire.Domain.Entities;
+﻿using Servire.Domain.Entities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using Servire.Bll.Interfaces;
+using Servire.Services.Interfaces;
 
 namespace Servire.Bll.Services
 {

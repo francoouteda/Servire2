@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 
 namespace Servire.Domain.Entities
 {
@@ -20,6 +21,11 @@ namespace Servire.Domain.Entities
         public TipoMovimiento Tipo { get; set; }
         public decimal Cantidad { get; set; } // Positivo para Entradas, Negativo para Salidas
         public int? UsuarioId { get; set; } // Quién hizo el movimiento
-        public Usuario? Usuario { get; set; }
+
+        // CORRECCIÓN:
+        // Eliminamos esta propiedad. La entidad de negocio 'MovimientoStock'
+        // no debe tener una dependencia directa a la entidad de seguridad 'Usuario'.
+        // Con el 'UsuarioId' es suficiente.
+        // public Usuario? Usuario { get; set; } // <- ELIMINAR ESTA LÍNEA
     }
 }

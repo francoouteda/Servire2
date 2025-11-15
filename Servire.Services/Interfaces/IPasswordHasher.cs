@@ -1,4 +1,4 @@
-﻿namespace Servire.Bll.Interfaces
+﻿namespace Servire.Services.Interfaces
 {
     public interface IPasswordHasher
     {

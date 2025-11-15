@@ -1,16 +1,17 @@
 ﻿using Servire.Bll.Interfaces;
 using Servire.Bll.Services;
 using Servire.Domain.Entities;
+using Servire.Services.Interfaces;
 
 namespace Servire.UI.Forms
 {
     public partial class frmProveedorEdit : Form
     {
         private readonly IStockService _stockService;
-        private readonly IErrorLogger _log;
+        private readonly ILogger _log;
         private Proveedor? _proveedorEditado; 
 
-        public frmProveedorEdit(IStockService stockService, IErrorLogger log)
+        public frmProveedorEdit(IStockService stockService, ILogger log)
         {
             InitializeComponent();
             _stockService = stockService;

@@ -1,6 +1,7 @@
 ﻿using Servire.Domain.Entities;
+using Servire.Services.Domain.Composite;
 
-namespace Servire.Bll.Services;
+namespace Servire.Services.Interfaces;
 
 public interface ISessionContext
 {

@@ -17,12 +17,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Serivire.Dal\Serivire.Dal.csproj" />
-    <ProjectReference Include="..\Servire.Bll\Servire.Bll.csproj" />
     <ProjectReference Include="..\Servire.Domain\Servire.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Bll\" />
   </ItemGroup>
 
 </Project>

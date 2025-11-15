@@ -12,6 +12,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Servire.Domain\Servire.Domain.csproj" />
+	  <ProjectReference Include="..\Servire.Services\Servire.Services.csproj" />
+
   </ItemGroup>
 
 </Project>

@@ -2,16 +2,16 @@
 using Servire.Bll.Interfaces;
 using Servire.Bll.Services;
 using Servire.Domain.Entities;
-
+using Servire.Services.Interfaces;
 namespace Servire.UI.Forms
 {
     public partial class ucProductos : UserControl
     {
         private readonly IProductoService _productoService;
-        private readonly IErrorLogger _log;
+        private readonly ILogger _log;
         private List<Producto> _listaCompleta;
 
-        public ucProductos(IProductoService productoService, IErrorLogger log)
+        public ucProductos(IProductoService productoService, ILogger log)
         {
             InitializeComponent();
 

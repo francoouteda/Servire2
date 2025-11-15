@@ -3,6 +3,10 @@ using Servire.Bll.Interfaces;
 using Servire.Bll.Services;
 using Servire.Domain.Entities;
 using System.Data;
+using Servire.Services.Interfaces;
+{
+    
+}
 
 namespace Servire.UI.Forms
 {
@@ -12,9 +16,9 @@ namespace Servire.UI.Forms
 
         public event NavegacionRequeridaHandler? OnNavegacionRequerida;
         private readonly IStockService _stockService;
-        private readonly IErrorLogger _log;
+        private readonly ILogger _log;
         private List<Insumo> _listaCompleta; 
-        public ucStock(IStockService stockService, IErrorLogger log)
+        public ucStock(IStockService stockService, ILogger log)
         {
             InitializeComponent();
 
