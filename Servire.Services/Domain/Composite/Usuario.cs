@@ -85,9 +85,11 @@ namespace Servire.Services.Domain.Composite
             }
         }
 
-        public bool TienePermiso(string permiso)
+        public bool TienePermiso(string permisoKey)
         {
-            return Patentes.Any(p => p.Permiso.Equals(permiso, StringComparison.OrdinalIgnoreCase));
+            // 'Patentes' es la propiedad que ya aplana el árbol
+            // 'Permiso' es la propiedad de la Patente que mapeamos del 'DataKey' del profe
+            return Patentes.Any(p => p.Permiso.Equals(permisoKey, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

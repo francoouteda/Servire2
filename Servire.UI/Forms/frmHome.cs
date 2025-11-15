@@ -1,114 +1,87 @@
-﻿using Servire.UI.Forms;
+﻿// 1. Usings para la nueva capa 'Servire.Services'
+using Servire.Services.Domain.Composite;
+using Servire.Services.Implementations;
+using Servire.Services.Tools;
+using Servire.UI.Forms;
 using System;
 using System.Windows.Forms;
-
-// 1. Apuntamos a los NUEVOS namespaces
-using Servire.Services.Dal.Implementations;
-using Servire.Services.Domain.Composite;
-using Servire.Services.Tools;
 
 namespace Servire.UI.Forms
 {
     public partial class frmHome : Form
     {
-        // 2. Definimos la propiedad con la NUEVA entidad Usuario
+        // 2. La propiedad con la NUEVA entidad Usuario
         public Usuario UsuarioLogueado { get; set; }
 
+        // 3. Instanciamos el Logger
+        private readonly LoggerService _logger;
+
+        // 4. Constructor sin Inyección de Dependencias
         public frmHome()
         {
             InitializeComponent();
+            _logger = new LoggerService();
         }
 
+        // 5. frmHome_Load refactorizado
         private void frmHome_Load(object sender, EventArgs e)
         {
-            // 3. Ya no pasamos dependencias viejas al Login
-            frmLogin loginForm = new frmLogin();
-            loginForm.ShowDialog(this); // 'this' es el Owner
-
-            if (this.UsuarioLogueado == null) // Si no se logueó
+            try
             {
+                // Instanciamos el Login sin pasarle nada
+                frmLogin loginForm = new frmLogin();
+                loginForm.ShowDialog(this); // 'this' es el Owner
+
+                if (this.UsuarioLogueado == null)
+                {
+                    Application.Exit();
+                    return;
+                }
+
+                this.Text = $"Servire - {UsuarioLogueado.Nombre} ({UsuarioLogueado.Rol})";
+
+                // 6. Validación de permisos con el método 'TienePermiso'
+                // (Los nombres de botones SÍ existen en tu .Designer.cs)
+                btnUsuarios.Enabled = UsuarioLogueado.TienePermiso("Gestion_Usuarios");
+                btnStock.Enabled = UsuarioLogueado.TienePermiso("Gestion_Stock");
+                btnComandas.Enabled = UsuarioLogueado.TienePermiso("Ver_Comandas");
+                btnBitacora.Enabled = UsuarioLogueado.TienePermiso("Acceso_Bitacora");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "frmHome_Load", "Sistema");
+                MessageBox.Show("Error fatal al iniciar la aplicación. Revise los logs.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Application.Exit();
-                return;
             }
-
-            // 4. Usamos la data del NUEVO usuario
-            this.Text = $"Servire - {UsuarioLogueado.Nombre} ({UsuarioLogueado.Rol})";
-
-            // 5. Validamos permisos usando la nueva lógica de Patentes
-            //    (Asumiendo que tienes strings de permiso definidos)
-            btnUsuarios.Enabled = UsuarioLogueado.TienePermiso("Gestion_Usuarios");
-            btnStock.Enabled = UsuarioLogueado.TienePermiso("Gestion_Stock");
-            btnComandas.Enabled = UsuarioLogueado.TienePermiso("Ver_Comandas");
-            btnBitacora.Enabled = UsuarioLogueado.TienePermiso("Acceso_Bitacora");
         }
 
-        private void AbrirControlEnPanel(Control controlAMostrar)
-        {
-           
-            pnlContenedorPrincipal.Controls.Clear();
+        // --- CÓDIGO COMPLETO: Eventos de Botón ---
+        // (Respetando los nombres de tu .Designer.cs)
 
-            controlAMostrar.Dock = DockStyle.Fill;
-
-            pnlContenedorPrincipal.Controls.Add(controlAMostrar);
-        }
-        private void menuSalir_Click(object sender, EventArgs e)
+        private void btnUsuarios_Click(object sender, EventArgs e)
         {
-            Application.Exit();
+            // Pasamos el usuario logueado para auditoría y permisos
+            frmUsuarios frm = new frmUsuarios(UsuarioLogueado);
+            frm.ShowDialog();
         }
 
-        private void menuUsuarios_Click(object sender, EventArgs e)
+        private void btnBitacora_Click(object sender, EventArgs e)
         {
-            //AbrirFormulario<frmUsuarios>();
+            // Pasamos el usuario logueado
+            frmBitacora frm = new frmBitacora(UsuarioLogueado);
+            frm.ShowDialog();
         }
 
-        private void menuBitacora_Click(object sender, EventArgs e)
+        private void btnComandas_Click(object sender, EventArgs e)
         {
-            using var f = Program.Services.GetRequiredService<frmBitacora>();
-            f.ShowDialog(this);
+            frmComandas frm = new frmComandas();
+            frm.ShowDialog();
         }
 
-        private void menuStock_Click(object sender, EventArgs e)
+        private void btnStock_Click(object sender, EventArgs e)
         {
-            if (Program.CurrentUser?.Puede("Gestion_Stock") == false)
-            {
-                MessageBox.Show("No tiene permisos para acceder a este módulo.", "Acceso Denegado", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                return;
-            }
-
-            var uc = Program.Services.GetRequiredService<ucStock>();
-            uc.OnNavegacionRequerida += Uc_OnNavegacionRequerida;
-            AbrirControlEnPanel(uc);
-        }
-        
-        private void Uc_OnNavegacionRequerida(object sender, UserControl controlANavegar)
-        {
-            if (controlANavegar is ucStock ucStock)
-            {
-                ucStock.OnNavegacionRequerida += Uc_OnNavegacionRequerida;
-            }
-
-            if (controlANavegar is ucProveedores ucProveedores)
-            {
-                
-                ucProveedores.OnNavegacionRequerida += Uc_OnNavegacionRequerida;
-            }
-
-            
-            AbrirControlEnPanel(controlANavegar);
-
-        }
-        private void menuUsuariosToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using var f = Program.Services.GetRequiredService<frmUsuarios>();
-            f.ShowDialog(this);
-        }
-
-        private void menuProductos_Click(object sender, EventArgs e)
-        {
-            var uc = Program.Services.GetRequiredService<ucProductos>();
-
-            AbrirControlEnPanel(uc);
-
+            frmStock frm = new frmStock();
+            frm.ShowDialog();
         }
     }
 }

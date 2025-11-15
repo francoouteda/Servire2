@@ -13,7 +13,6 @@ namespace Servire.UI
     internal static class Program
     {
         public static IServiceProvider Services { get; private set; } = default!;
-        public static Servire.Domain.Entities.Usuario? CurrentUser { get; set; }
 
         [STAThread]
         static void Main()
@@ -34,16 +33,12 @@ namespace Servire.UI
             }
 
             var services = new ServiceCollection();
-            services.AddScoped<IUnitOfWork>(sp => new UnitOfWorkAdo(connectionString));
+            
 
-            services.AddScoped<IBitacoraService, BitacoraService>();
-            services.AddScoped<IErrorLogService, ErrorLogService>();
-            services.AddScoped<IUsuarioService, UsuarioService>();
+          
             services.AddScoped<IStockService, StockService>();
             services.AddScoped<IProductoService, ProductoService>();
-            services.AddScoped<IErrorLogger>(sp => new ErrorLogger(config));
-            services.AddSingleton<ISessionContext>(sp => UiSessionContext.Instance);
-            services.AddScoped<IPasswordHasher, PasswordHasher>(); 
+
 
             services.AddTransient<frmLogin>();
             services.AddTransient<frmHome>();

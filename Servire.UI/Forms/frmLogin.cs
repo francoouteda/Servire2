@@ -1,4 +1,4 @@
-﻿using Servire.Services.Dal.Implementations;
+﻿using Servire.Services.Dal.Implementations; // USINGS NUEVOS
 using Servire.Services.Domain.Composite;
 using Servire.Services.Implementations;
 using Servire.Services.Tools;
@@ -13,7 +13,7 @@ namespace Servire.UI.Forms
         private readonly PasswordHasher _passwordHasher;
         private readonly LoggerService _loggerService;
 
-        public frmLogin()
+        public frmLogin() // Constructor SIN DI
         {
             InitializeComponent();
             _usuarioRepository = new UsuarioRepository();
@@ -36,16 +36,12 @@ namespace Servire.UI.Forms
             {
                 var usuario = _usuarioRepository.ObtenerPorUsername(usernameIntentado);
 
-                if (usuario != null && usuario.Habilitado) // Añadimos chequeo de Habilitado
+                if (usuario != null && usuario.Habilitado)
                 {
                     if (_passwordHasher.Verify(txtPassword.Text, usuario.PasswordHash))
                     {
-                        // ¡Login Exitoso!
                         _loggerService.Info($"Inicio de sesión exitoso", origen, usuario.Username);
-
-                        // CORRECCIÓN: Apuntamos a frmHome
                         (this.Owner as frmHome).UsuarioLogueado = usuario;
-
                         this.DialogResult = DialogResult.OK;
                         this.Close();
                     }
@@ -57,7 +53,7 @@ namespace Servire.UI.Forms
                 }
                 else
                 {
-                    _loggerService.Info($"Intó de login fallido (usuario no existe o inactivo)", origen, usernameIntentado);
+                    _loggerService.Info($"Intento de login fallido (usuario no existe o inactivo)", origen, usernameIntentado);
                     MessageBox.Show("Credenciales inválidas.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
