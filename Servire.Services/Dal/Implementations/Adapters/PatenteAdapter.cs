@@ -4,7 +4,7 @@ using Servire.Services.Domain.Composite;
 
 namespace Servire.Services.Dal.Implementations.Adapters
 {
-    internal sealed class PatenteAdapter : IAdapter<Patente>
+    public sealed class PatenteAdapter : IAdapter<Patente>
     {
         #region Singleton
         private readonly static PatenteAdapter _instance = new PatenteAdapter();

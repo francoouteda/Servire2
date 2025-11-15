@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 
 namespace Servire.Services.Dal.Implementations
 {
-    internal class FamiliaRepository : IFamiliaRepository
+    public class FamiliaRepository : IFamiliaRepository
     {
         // Acepta Guid
         public Familia GetById(Guid id)

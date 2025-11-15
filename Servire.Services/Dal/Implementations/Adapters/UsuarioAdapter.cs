@@ -6,7 +6,7 @@ using Servire.Services.Domain.Composite;
 
 namespace Servire.Services.Dal.Implementations.Adapters
 {
-    internal sealed class UsuarioAdapter : IAdapter<Usuario>
+    public sealed class UsuarioAdapter : IAdapter<Usuario>
     {
         #region Singleton
         private readonly static UsuarioAdapter _instance = new UsuarioAdapter();

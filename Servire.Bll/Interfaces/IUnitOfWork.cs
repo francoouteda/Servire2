@@ -3,8 +3,8 @@
     public interface IUnitOfWork : IDisposable
     {
        
-        IUsuarioRepository UsuarioRepository { get; }
-        IBitacoraRepository BitacoraRepository { get; }
+
+
         IProveedorRepository ProveedorRepository { get; }
         IInsumoRepository InsumoRepository { get; }
         IMovimientoStockRepository MovimientoStockRepository { get; }

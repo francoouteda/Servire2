@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 
 namespace Servire.Services.Dal.Implementations
 {
-    internal class FamiliaPatenteRepository : IJoinRepository<Patente, Familia>
+    public class FamiliaPatenteRepository : IJoinRepository<Patente, Familia>
     {
         public List<Patente> GetByObject(Familia obj)
         {

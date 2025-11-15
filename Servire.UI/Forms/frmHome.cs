@@ -1,30 +1,46 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Servire.UI.Forms;
+using System;
+using System.Windows.Forms;
+
+// 1. Apuntamos a los NUEVOS namespaces
+using Servire.Services.Dal.Implementations;
+using Servire.Services.Domain.Composite;
+using Servire.Services.Tools;
 
 namespace Servire.UI.Forms
 {
     public partial class frmHome : Form
     {
+        // 2. Definimos la propiedad con la NUEVA entidad Usuario
+        public Usuario UsuarioLogueado { get; set; }
+
         public frmHome()
         {
             InitializeComponent();
-
         }
 
         private void frmHome_Load(object sender, EventArgs e)
         {
-            var u = Program.CurrentUser;
-            lblSesion.Text = (u == null)
-                ? "Sesión: -"
-                : $"Sesión: {u.Username} ({u.Rol})";
+            // 3. Ya no pasamos dependencias viejas al Login
+            frmLogin loginForm = new frmLogin();
+            loginForm.ShowDialog(this); // 'this' es el Owner
 
+            if (this.UsuarioLogueado == null) // Si no se logueó
+            {
+                Application.Exit();
+                return;
+            }
 
-            
-            menuAdmin.Visible = u?.Puede("Acceso_Admin") ?? false;
-            menuUsuarios.Visible = u?.Puede("Gestion_Usuarios") ?? false;
-            menuBitacora.Visible = u?.Puede("Acceso_Bitacora") ?? false;
+            // 4. Usamos la data del NUEVO usuario
+            this.Text = $"Servire - {UsuarioLogueado.Nombre} ({UsuarioLogueado.Rol})";
 
+            // 5. Validamos permisos usando la nueva lógica de Patentes
+            //    (Asumiendo que tienes strings de permiso definidos)
+            btnUsuarios.Enabled = UsuarioLogueado.TienePermiso("Gestion_Usuarios");
+            btnStock.Enabled = UsuarioLogueado.TienePermiso("Gestion_Stock");
+            btnComandas.Enabled = UsuarioLogueado.TienePermiso("Ver_Comandas");
+            btnBitacora.Enabled = UsuarioLogueado.TienePermiso("Acceso_Bitacora");
         }
-
 
         private void AbrirControlEnPanel(Control controlAMostrar)
         {

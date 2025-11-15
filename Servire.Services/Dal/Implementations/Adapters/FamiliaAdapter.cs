@@ -6,7 +6,7 @@ using Servire.Services.Dal.Implementations; // Para llamar a los repos
 
 namespace Servire.Services.Dal.Implementations.Adapters
 {
-    internal sealed class FamiliaAdapter : IAdapter<Familia>
+    public sealed class FamiliaAdapter : IAdapter<Familia>
     {
         #region Singleton
         private readonly static FamiliaAdapter _instance = new FamiliaAdapter();

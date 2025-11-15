@@ -11,7 +11,7 @@ namespace Servire.Dal.Ado
         private SqlTransaction _transaction;
         private bool _disposed;
 
-        private IBitacoraRepository _bitacoraRepository;
+        
         private IProveedorRepository _proveedorRepository;
         private IInsumoRepository _insumoRepository;
         private IMovimientoStockRepository _movimientoStockRepository;
@@ -24,17 +24,8 @@ namespace Servire.Dal.Ado
             _connection.Open();
         }
 
-        public IBitacoraRepository BitacoraRepository =>
-            _bitacoraRepository ??= new BitacoraRepositoryAdo(_connection, _transaction);
-
-        public IUsuarioRepository UsuarioRepository
-        {
-            get
-            {
-                _usuarioRepository ??= new UsuarioRepositoryAdo(_connection, _transaction);
-                return _usuarioRepository;
-            }
-        }
+       
+     
         public void BeginTransaction()
         {
             if (_transaction != null)
@@ -90,9 +81,8 @@ namespace Servire.Dal.Ado
             _transaction?.Dispose();
             _transaction = null;
 
-            _bitacoraRepository = null;
-            _usuarioRepository = null;
-          
+           
+        
             _proveedorRepository = null;
             _insumoRepository = null;
             _movimientoStockRepository = null;

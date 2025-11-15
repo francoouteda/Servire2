@@ -10,7 +10,7 @@ using System.Data;
 
 namespace Servire.Services.Dal.Implementations
 {
-    internal class UsuarioRepository : IUsuarioRepository
+    public class UsuarioRepository : IUsuarioRepository
     {
         // Define la lista de campos para reutilizar en todas las consultas SELECT
         private const string CAMPOS_USUARIO = @"

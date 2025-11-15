@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 
 namespace Servire.Services.Dal.Implementations
 {
-    internal class UsuarioFamiliaRepository : IJoinRepository<Familia, Usuario>
+    public class UsuarioFamiliaRepository : IJoinRepository<Familia, Usuario>
     {
         public List<Familia> GetByObject(Usuario obj)
         {

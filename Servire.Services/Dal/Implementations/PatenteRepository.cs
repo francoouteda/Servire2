@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 
 namespace Servire.Services.Dal.Implementations
 {
-    internal class PatenteRepository : IPatenteRepository
+    public class PatenteRepository : IPatenteRepository
     {
         // Acepta Guid
         public Patente GetById(Guid id)
